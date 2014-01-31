@@ -1,0 +1,83 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/feedback"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".FeedbackActivity" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.20" >
+
+        <TextView
+            android:id="@+id/TextView01"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_weight="0.6"
+            android:text="Your PC is "
+            android:textSize="30dp" />
+
+        <TextView
+            android:id="@+id/event"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_weight="0.4"
+            android:text="unlocked"
+            android:textSize="30dp"
+            android:textColor="#ffff0000" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/ask"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_weight="0.20"
+        android:text="Are you really near your PC?"
+        android:textSize="30dp" />
+
+    <Button
+        android:id="@+id/yesevent1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_weight="0.20"
+        android:text="Yes" 
+        android:textSize="30dp"/>
+
+    <Button
+        android:id="@+id/noevent1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_weight="0.20"
+        android:text="No, Lock my PC"
+        android:textSize="30dp" />
+
+    <Button
+        android:id="@+id/yesevent2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_weight="0.20"
+        android:text="Yes, Unlock my PC" 
+        android:textSize="30dp"/>
+
+    <Button
+        android:id="@+id/noevent2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_weight="0.20"
+        android:text="No" 
+        android:textSize="30dp"/>
+
+</LinearLayout>

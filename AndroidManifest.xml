@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.mcbp"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="15"
+        android:targetSdkVersion="17" />
+	
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/> 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+ 	<uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+	<uses-permission android:name="android.permission.RECORD_AUDIO" />
+	<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+	
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.example.mcbp.AppLauncher"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.NoDisplay" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity android:name="com.example.mcbp.bind.BluetoothClient"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.BIND" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.example.mcbp.bind.DeviceListActivity"
+                  android:label="@string/select_device"
+                  android:theme="@android:style/Theme.Holo.Dialog" />
+        
+        <activity android:name=".FeedbackActivity"
+            	android:label="@string/app_name"
+            	>
+		    <intent-filter>
+                <action android:name="com.example.mcbp.MY_FEEDBACK_ACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+		</activity>
+        
+        <service android:name=".DaemonService">		    
+		</service>
+		<service android:name=".WorkerService">	
+		    <intent-filter>
+        		<action android:name="com.example.mcbp.MY_WORKER_ACTION" />
+    		</intent-filter>		   	
+		</service>
+		
+		<service
+            android:name="com.example.mcbp.sensors.GpsWorker">
+            <intent-filter>
+                <action android:name="com.example.mcbp.GPS_TASK_ACTION" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.example.mcbp.sensors.BluetoothWorker">
+            <intent-filter>
+                <action android:name="com.example.mcbp.BT_TASK_ACTION" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.example.mcbp.sensors.WifiWorker">
+            <intent-filter>
+                <action android:name="com.example.mcbp.WIFI_TASK_ACTION" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="com.example.mcbp.sensors.AudioWorker">
+            <intent-filter>
+                <action android:name="com.example.mcbp.AUDIO_TASK_ACTION" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

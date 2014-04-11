@@ -327,5 +327,6 @@ public class MessageConsumer extends IConnectToRabbitMQ{
     
     public void dispose(){
         Running = false;
+        //Dispose();
     }
 }

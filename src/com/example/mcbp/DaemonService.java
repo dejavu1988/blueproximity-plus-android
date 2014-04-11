@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -18,8 +19,8 @@ public class DaemonService extends Service {
     private static final String TAG = "DaemonService";
     private static final boolean D = true;
     
-    //private PrefManager pM;
-    private static String uuid;
+    private PrefManager pM;
+    //private static String uuid;
     
     // This is the object that receives interactions from clients.  See
     // RemoteService for a more complete example.
@@ -36,14 +37,21 @@ public class DaemonService extends Service {
     private Object[] mStartForegroundArgs = new Object[2];
     private Object[] mStopForegroundArgs = new Object[1];
     
-    public static MessageConsumer mConsumer;
+    public static MessageConsumer mConsumer = null;
     
     @Override
     public void onCreate() {
     	super.onCreate();
     	if(D) Log.e(TAG, "-- ON CREATE --");
         
-        uuid = Secure.getString(this.getContentResolver(),Secure.ANDROID_ID);
+    	pM = new PrefManager(getApplicationContext());
+        String queue1 = pM.getUUID();
+        String queue2 = pM.getBindID();
+        if(queue1.isEmpty() || queue2.isEmpty()){
+        	this.stopSelf();
+        }
+        
+        //uuid = Secure.getString(this.getContentResolver(),Secure.ANDROID_ID);
 		mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         
         try {
@@ -54,10 +62,9 @@ public class DaemonService extends Service {
         } catch (NoSuchMethodException e) {
             // Running on an older platform.
             mStartForeground = mStopForeground = null;
-        }
+        }  
         
-        
-        mConsumer = new MessageConsumer(this,"54.229.32.28", "queue1", "queue2");
+        mConsumer = new MessageConsumer(this,"54.229.32.28", queue1, queue2);
         if(D) Log.e(TAG, "service created");
     }
     
@@ -95,19 +102,18 @@ public class DaemonService extends Service {
                 Log.w("DaemonService", "Unable to invoke stopForeground", e);
             }
             return;
-        }
-        
+        }        
         
     }
         
     
     @Override
     public void onDestroy() {
-        // Make sure our notification is gone.
+    	// Make sure our notification is gone.
         stopForegroundCompat(R.string.foreground_service_started);
-        //connected = false;        
-        //stopThread();
+        //connected = false;      
         mConsumer.dispose();
+        super.onDestroy();
     }
     
 
@@ -133,13 +139,13 @@ public class DaemonService extends Service {
                     System.currentTimeMillis());
 
             // The PendingIntent to launch our activity if the user selects this notification
-            //PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, BindActivity.class), 0);
 
             // Set the info for the views that show in the notification panel.
-            /*notification.setLatestEventInfo(this, getText(R.string.foreground_service_label),
-                           text, contentIntent);*/
             notification.setLatestEventInfo(this, getText(R.string.foreground_service_label),
-                    text, null);
+                           text, contentIntent);
+            /*notification.setLatestEventInfo(this, getText(R.string.foreground_service_label),
+                    text, null);*/
             
             startForegroundCompat(R.string.foreground_service_started, notification);
             

@@ -53,6 +53,10 @@ public abstract class IConnectToRabbitMQ{
  
       }
  
+      public boolean isRunning(){
+    	  return Running;
+      }
+      
       /**
        * Connect to the broker and create the exchange
        * @return success

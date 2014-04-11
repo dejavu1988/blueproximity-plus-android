@@ -19,24 +19,24 @@ public class PrefManager {
     private int PRIVATE_MODE = 0;
     
     //Shared 
-    private static final String PREF_NAME = "McBPPref";
+    private static final String PREF_NAME = "BPPref";
     
     // local UUID
     private static final String ID = "DeviceID";
     
-    // local Name
+    // local name
     private static final String NAME = "DeviceName";
     
-    // local Address
+    // local address
     private static final String ADDR = "DeviceAddr";
     
-    // Bound device name
+    // Bound device UUID
     private static final String BINDID = "TerminalID";
     
     // Bound device name
     private static final String BINDNAME = "TerminalName";
     
-    // Bound device name
+    // Bound device address
     private static final String BINDADDR = "TerminalAddr";
     
     // Total UNLOCK event counter

@@ -40,18 +40,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-        <activity android:name="com.example.mcbp.bind.BluetoothClient"
-                  android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.intent.action.BIND" />
+                        
+        <activity android:name=".BindActivity"
+            	android:label="@string/app_name"
+            	>
+		    <intent-filter>
+                <action android:name="com.example.mcbp.BIND" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </activity>
-        <activity android:name="com.example.mcbp.bind.DeviceListActivity"
-                  android:label="@string/select_device"
-                  android:theme="@android:style/Theme.Holo.Dialog" />
-        
+		</activity>
+		
         <activity android:name=".FeedbackActivity"
             	android:label="@string/app_name"
             	>
@@ -60,6 +58,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 		</activity>
+        
         
         <service android:name=".DaemonService">		    
 		</service>

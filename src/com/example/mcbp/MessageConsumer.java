@@ -109,12 +109,12 @@ public class MessageConsumer extends IConnectToRabbitMQ{
         		String ts = msgObj.get("ts");
         		Purge();
         		Scan(ts);
-        	}else if(id.contains("ID")){
+        	}/*else if(id.contains("ID")){
         		String uid = msgObj.get("uid");
         		pM.updateBindID(uid);
         		Purge();
         		sendUuid();
-        	}
+        	}*/
         }
     };
     

@@ -63,7 +63,7 @@ public class BindActivity extends Activity {
         pM = new PrefManager(getApplicationContext());
         if(pM.isBond()){
         	bindstatus = true;
-        	mBindStatus.setText("Bound to " + pM.getBindName() +":"+ pM.getBindAddr());
+        	mBindStatus.setText("Bound to " + pM.getBindName() +": "+ pM.getBindAddr());
         	if(!(DaemonService.mConsumer!= null && DaemonService.mConsumer.isRunning())){
 	        	Intent intentToService = new Intent(this, DaemonService.class);
 	            startService(intentToService);
@@ -175,7 +175,7 @@ public class BindActivity extends Activity {
         case R.id.unlock:        	
         	//manually trigger lock in case of FalseNegative
         	if(bindstatus){
-            	DaemonService.mConsumer.sendFeedback("FN","");        		
+            	DaemonService.mConsumer.sendFeedback("4","");        		
         	}
         	break;
         case R.id.bind:
@@ -205,7 +205,8 @@ public class BindActivity extends Activity {
                 	setStatus(getString(R.string.title_connecting));
                     break;
                 case BluetoothUtil.STATE_NONE:
-                    setStatus(getString(R.string.title_not_connected));
+                    //setStatus(getString(R.string.title_not_connected));
+                	setStatus("");
                     break;
                 }
                 break;
@@ -218,11 +219,12 @@ public class BindActivity extends Activity {
                 if(readMessage.contains(":")){
                 	String[] tmps = readMessage.split(":");
                 	if(tmps[0].equalsIgnoreCase("ID")){
+                		Log.d(TAG, "UUID: " + tmps[1] + " len: " + tmps[1].length());
                 		pM.updateBindID(tmps[1]);
-                		mConnService.write(pM.getUUID().getBytes());
+                		mConnService.write(("ID:"+pM.getUUID()).getBytes());
                 	}else if(tmps[0].equalsIgnoreCase("DONE")){
                 		bindstatus = true;
-                    	mBindStatus.setText("Bound to " + pM.getBindID());
+                    	mBindStatus.setText("Bound to " + pM.getBindName() +": "+ pM.getBindAddr());
                 		mConnService.stop();
                 		Intent intentToService = new Intent(getApplicationContext(), DaemonService.class);
                         startService(intentToService);

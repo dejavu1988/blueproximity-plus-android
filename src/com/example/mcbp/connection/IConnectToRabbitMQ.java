@@ -69,21 +69,31 @@ public abstract class IConnectToRabbitMQ{
           Thread thread = new Thread(){
         	  @Override
               public void run(){
-        		  try
-                  {
-                      ConnectionFactory connectionFactory = new ConnectionFactory();
-                      connectionFactory.setHost(mServer); 
-                      mConnection = connectionFactory.newConnection();  
-                      mModel = mConnection.createChannel();
-                      mStatus = true;
-                  }
-                  catch (Exception e)
-                  {
-                      e.printStackTrace();
-                      // Typical error: NetworkOnMainThreadException
-                      if(D) Log.e(TAG, "super channel error: "+e);   
-                      mStatus = false;
-                  }
+        		  boolean flag = true; 
+        		  while(flag){
+	        		  try
+	                  {
+	                      ConnectionFactory connectionFactory = new ConnectionFactory();
+	                      connectionFactory.setHost(mServer); 
+	                      mConnection = connectionFactory.newConnection();  
+	                      mModel = mConnection.createChannel();
+	                      mStatus = true;
+	                      flag = false;
+	                  }
+	                  catch (Exception e)
+	                  {
+	                      //e.printStackTrace();
+	                      // Typical error: NetworkOnMainThreadException
+	                      if(D) Log.e(TAG, "super channel error: "+e);   
+	                      mStatus = false;
+	                      try {
+	  						Thread.sleep(10000);
+	  					} catch (InterruptedException e1) {
+	  						// TODO Auto-generated catch block
+	  						e.printStackTrace();
+	  					}
+	                  }	        		  
+        	  	}
         	  }
           };
           thread.start();

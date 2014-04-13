@@ -34,6 +34,7 @@ public class MessageConsumer extends IConnectToRabbitMQ{
     private Type mapType;
     //private PrefManager pM;
     private PrefManager pM;
+    private boolean running;
     
     public MessageConsumer(Context context, String server, String queueRecv, String queueSend) {
         super(server);
@@ -44,6 +45,7 @@ public class MessageConsumer extends IConnectToRabbitMQ{
         mapType = new TypeToken<HashMap<String,String>>(){}.getType();
         //pM = new PrefManager(mContext);
         pM = new PrefManager(context);
+        running = false;
     }
  
     
@@ -70,6 +72,7 @@ public class MessageConsumer extends IConnectToRabbitMQ{
  
     private Handler mMessageHandler = new Handler();
     private Handler mConsumeHandler = new Handler();
+    private Handler mExceptionHandler = new Handler();
  
     // Create runnable for posting back to main thread
     /*final Runnable mReturnMessage = new Runnable() {
@@ -124,6 +127,12 @@ public class MessageConsumer extends IConnectToRabbitMQ{
         }
     };
     
+    final Runnable mReconnectRunner = new Runnable() {
+    	public void run() {
+    		connectToRabbitMQ();
+    	}
+    };
+    
  
     /**
      * Create Exchange and then start consuming. A binding needs to be added before any messages will be delivered
@@ -164,12 +173,14 @@ public class MessageConsumer extends IConnectToRabbitMQ{
     	Thread thread = new Thread(){
     		@Override
             public void run(){
-    			try {    				
-    				mModel.queuePurge(mQueueSend);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+    			if(running){
+    				try {    				
+        				mModel.queuePurge(mQueueSend);
+    				} catch (IOException e) {
+    					// TODO Auto-generated catch block
+    					e.printStackTrace();
+    				}
+    			}    			
     		}
     	};
     	thread.start();
@@ -216,22 +227,35 @@ public class MessageConsumer extends IConnectToRabbitMQ{
      */
     private void Consume(){
         Thread thread = new Thread()
-        {
- 
+        { 
              @Override
              public void run() {
             	 if(D) Log.e(TAG, "consume");
-                 while(Running){
-                    QueueingConsumer.Delivery delivery;
-                    try {
-                        delivery = MySubscription.nextDelivery();
-                        mLastMessage = delivery.getBody();
-                        //if(D) Log.e(TAG, "msg received: " + new String(mLastMessage));
-                        mMessageHandler.post(mReturnMessage);
-                    } catch (InterruptedException ie) {
-                        ie.printStackTrace();
-                    }
-                 }
+            	 try{
+            		 while(Running){
+                         QueueingConsumer.Delivery delivery;
+                         try {
+                         	running = true;
+                             delivery = MySubscription.nextDelivery();
+                             mLastMessage = delivery.getBody();
+                             //if(D) Log.e(TAG, "msg received: " + new String(mLastMessage));
+                             mMessageHandler.post(mReturnMessage);
+                         } catch (InterruptedException ie) {
+                             //ie.printStackTrace();
+                         	running = false;
+                         }
+                      }
+            	 }catch(Exception e){
+            		 running = false;
+            		 try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+            		 mExceptionHandler.post(mReconnectRunner);
+            	 }
+                 
              }
         };
         thread.start();
@@ -245,13 +269,15 @@ public class MessageConsumer extends IConnectToRabbitMQ{
     	Thread thread = new Thread(){
     		@Override
             public void run(){
-    			try {    				
-					mModel.basicPublish("", mQueueSend, null, message.getBytes());
-					if(D) Log.e(TAG, "msg sent: " + message);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+    			if(running){
+    				try {    				
+    					mModel.basicPublish("", mQueueSend, null, message.getBytes());
+    					if(D) Log.e(TAG, "msg sent: " + message);
+    				} catch (IOException e) {
+    					// TODO Auto-generated catch block
+    					e.printStackTrace();
+    				}
+    			}    			
     		}
     	};
     	thread.start();

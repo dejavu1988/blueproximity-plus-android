@@ -1,9 +1,12 @@
 package com.example.mcbp.connection;
 
 import java.io.IOException;
+import java.util.Timer;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.example.mcbp.DaemonService;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -16,11 +19,11 @@ public abstract class IConnectToRabbitMQ{
 	// Debugging
     private static final String TAG = "RabbitMQDemo";
     private static final boolean D = true;
-    
-      public String mServer;
+     
+    public String mServer;
  
-      protected Channel mModel = null;
-      protected Connection  mConnection;
+	protected Channel mModel = null;
+	protected Connection  mConnection;
  
       protected boolean Running ;
       private boolean mStatus = false;
@@ -69,31 +72,21 @@ public abstract class IConnectToRabbitMQ{
           Thread thread = new Thread(){
         	  @Override
               public void run(){
-        		  boolean flag = true; 
-        		  while(flag){
-	        		  try
-	                  {
-	                      ConnectionFactory connectionFactory = new ConnectionFactory();
-	                      connectionFactory.setHost(mServer); 
-	                      mConnection = connectionFactory.newConnection();  
-	                      mModel = mConnection.createChannel();
-	                      mStatus = true;
-	                      flag = false;
-	                  }
-	                  catch (Exception e)
-	                  {
-	                      //e.printStackTrace();
-	                      // Typical error: NetworkOnMainThreadException
-	                      if(D) Log.e(TAG, "super channel error: "+e);   
-	                      mStatus = false;
-	                      try {
-	  						Thread.sleep(10000);
-	  					} catch (InterruptedException e1) {
-	  						// TODO Auto-generated catch block
-	  						e.printStackTrace();
-	  					}
-	                  }	        		  
-        	  	}
+        		  try
+                  {
+                      ConnectionFactory connectionFactory = new ConnectionFactory();
+                      connectionFactory.setHost(mServer); 
+                      mConnection = connectionFactory.newConnection();  
+                      mModel = mConnection.createChannel();
+                      mStatus = true;
+                  }
+                  catch (Exception e)
+                  {
+                      //e.printStackTrace();
+                      // Typical error: NetworkOnMainThreadException
+                      if(D) Log.e(TAG, "super channel error: "+e);   
+                      mStatus = false;
+                  }	 
         	  }
           };
           thread.start();

@@ -343,10 +343,10 @@ public class BluetoothClient extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent serverIntent = null;
         switch (item.getItemId()) {
-        case R.id.discoverable:
+        //case R.id.discoverable:
             // Ensure this device is discoverable by others
-            ensureDiscoverable();
-            return true;
+          //  ensureDiscoverable();
+            //return true;
         case R.id.unlock:        	
         	//manually trigger lock in case of FalseNegative
         	DaemonService.mConsumer.sendFeedback("FN","");

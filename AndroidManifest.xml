@@ -22,6 +22,7 @@
  	<uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
 	<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 	
     <application
         android:allowBackup="true"
@@ -58,8 +59,16 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 		</activity>
-        
-        
+		        
+        <receiver
+	       android:name=".BootCompleted"
+	       android:enabled="true"
+	       android:exported="false">
+	       <intent-filter>
+	          <action android:name="android.intent.action.BOOT_COMPLETED" />
+	       </intent-filter>
+		</receiver>
+
         <service android:name=".DaemonService">		    
 		</service>
 		<service android:name=".WorkerService">	

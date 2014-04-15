@@ -70,9 +70,13 @@ public class MessageConsumer extends IConnectToRabbitMQ{
         mOnReceiveMessageHandler = handler;
     };*/
  
-    private Handler mMessageHandler = new Handler();
-    private Handler mConsumeHandler = new Handler();
-    private Handler mExceptionHandler = new Handler();
+    // One handler for the thread
+    private Handler mHandler = new Handler();
+    //private Handler mMessageHandler = new Handler();
+    //private Handler mConsumeHandler = new Handler();
+    //private Handler mConsumeExceptionHandler = new Handler();
+    //private Handler mConnectExceptionHandler = new Handler();
+    
  
     // Create runnable for posting back to main thread
     /*final Runnable mReturnMessage = new Runnable() {
@@ -133,6 +137,12 @@ public class MessageConsumer extends IConnectToRabbitMQ{
     	}
     };
     
+    final Runnable mWaitForNetworkOnRunner = new Runnable() {
+    	public void run() {
+    		WaitForNetworkOn();
+    	}
+    };
+    
  
     /**
      * Create Exchange and then start consuming. A binding needs to be added before any messages will be delivered
@@ -153,16 +163,19 @@ public class MessageConsumer extends IConnectToRabbitMQ{
                MySubscription = new QueueingConsumer(mModel);
                mModel.basicConsume(mQueueRecv, true, MySubscription);
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+            	mHandler.post(mReconnectRunner);
                 return false;
             }
              
             Running = true;
-            mConsumeHandler.post(mConsumeRunner);
+            //mConsumeHandler.post(mConsumeRunner);
+            mHandler.post(mConsumeRunner);
  
            return true;
        }
        if(D) Log.e(TAG, "super connection failed");  
+       mHandler.post(mWaitForNetworkOnRunner);
        return false;
     }
  
@@ -239,7 +252,8 @@ public class MessageConsumer extends IConnectToRabbitMQ{
                              delivery = MySubscription.nextDelivery();
                              mLastMessage = delivery.getBody();
                              //if(D) Log.e(TAG, "msg received: " + new String(mLastMessage));
-                             mMessageHandler.post(mReturnMessage);
+                             //mMessageHandler.post(mReturnMessage);
+                             mHandler.post(mReturnMessage);
                          } catch (InterruptedException ie) {
                              //ie.printStackTrace();
                          	running = false;
@@ -247,13 +261,8 @@ public class MessageConsumer extends IConnectToRabbitMQ{
                       }
             	 }catch(Exception e){
             		 running = false;
-            		 try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-            		 mExceptionHandler.post(mReconnectRunner);
+            		 //mConsumeExceptionHandler.post(mReconnectRunner);
+            		 mHandler.post(mReconnectRunner);
             	 }
                  
              }
@@ -355,4 +364,32 @@ public class MessageConsumer extends IConnectToRabbitMQ{
         Running = false;
         //Dispose();
     }
+    
+    
+    private void WaitForNetworkOn(){
+        Thread thread = new Thread()
+        { 
+             @Override
+             public void run() {
+            	 if(D) Log.e(TAG, "check network");
+            	 boolean flag = true;
+            	 while(flag){
+            		 if(DaemonService.isNetworkOn(mContext)){
+            			 flag = false;
+            			 //mConnectExceptionHandler.post(mReconnectRunner);
+            			 mHandler.post(mReconnectRunner);
+            		 }
+            		 try {
+						Thread.sleep(60000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+            	 }                 
+             }
+        };
+        thread.start();
+ 
+    }
+    
 }

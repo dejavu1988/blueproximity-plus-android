@@ -9,7 +9,10 @@ import com.example.mcbp.log.ConfigureLog4J;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.bluetooth.BluetoothAdapter;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -64,6 +67,7 @@ public class BindActivity extends Activity {
         if(pM.isBond()){
         	bindstatus = true;
         	mBindStatus.setText("Bound to " + pM.getBindName() +": "+ pM.getBindAddr());
+        	log.info("isBound");
         	if(!(DaemonService.mConsumer!= null && DaemonService.mConsumer.isRunning())){
 	        	Intent intentToService = new Intent(this, DaemonService.class);
 	            startService(intentToService);
@@ -156,6 +160,7 @@ public class BindActivity extends Activity {
             }
         }
     }
+		
 	
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -167,11 +172,11 @@ public class BindActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.discoverable:
+        //case R.id.discoverable:
             // Ensure this device is discoverable by others
-            ensureDiscoverable();
-            Toast.makeText(this, "set visible for 300s", Toast.LENGTH_SHORT).show();
-            return true;
+          //  ensureDiscoverable();
+            //Toast.makeText(this, "set visible for 300s", Toast.LENGTH_SHORT).show();
+            //return true;
         case R.id.unlock:        	
         	//manually trigger lock in case of FalseNegative
         	if(bindstatus){
@@ -179,7 +184,31 @@ public class BindActivity extends Activity {
         	}
         	break;
         case R.id.bind:
-        	bind();
+        	if(pM.isBond()){
+        		new AlertDialog.Builder(BindActivity.this)
+        		.setTitle("Confirming Bind")
+        		.setMessage("Are you sure to clear previous bind registration and start rebind?")
+        		.setCancelable(true)
+        		.setPositiveButton("Yes", new DialogInterface.OnClickListener()
+        		{	
+        			public void onClick(DialogInterface dialog, int which)
+        			{
+        				ensureDiscoverable();
+        	        	Toast.makeText(BindActivity.this, "set visible for 300s", Toast.LENGTH_SHORT).show();
+        	        	bind();
+        			}
+        		}).setNegativeButton("No", new DialogInterface.OnClickListener()
+        		{	
+        			public void onClick(DialogInterface dialog, int which)
+        			{
+        				
+        			}
+        		}).show();
+        	}else{
+        		ensureDiscoverable();
+	        	Toast.makeText(BindActivity.this, "set visible for 300s", Toast.LENGTH_SHORT).show();
+	        	bind();
+        	}
         	break;
         }
         return false;

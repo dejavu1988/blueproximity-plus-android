@@ -29,7 +29,7 @@ public class AppLauncher extends Activity {
         ConfigureLog4J.configure(this);  
         LogManager.getRootLogger().setLevel((Level)Level.DEBUG);   
         
-		log.info("onCreate");	
+		log.info("AppLauncher onCreate");	
 		
 		pM = new PrefManager(getApplicationContext());
 				
@@ -42,8 +42,8 @@ public class AppLauncher extends Activity {
 
         // If the adapter is null, then Bluetooth is not supported
         if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
-            log.info("Bluetooth is not available.");
+            Toast.makeText(this, "Bluetooth is not supported", Toast.LENGTH_LONG).show();
+            log.info("Bluetooth is not supported.");
             finish();
         }
         

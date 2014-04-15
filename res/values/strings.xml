@@ -18,6 +18,11 @@
     <!-- Options Menu -->
     <string name="bind">Bind</string>
     <string name="discoverable">Visible</string>
+    <string name="unlock">Unlock your PC</string>
+    
+    <!-- Instruction -->
+    <string name="inst_bind">Please click Bind icon (in top-right corner) before start \"Scanning for devices\" on PC client.</string>
+    <string name="inst_unlock">To force unlocking your PC (give false negative response), please click the option button.</string>
     
     <!-- Notification -->
     <string name="imcoming_message_ticker_text">New Triggered event</string>

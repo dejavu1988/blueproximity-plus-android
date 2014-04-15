@@ -7,11 +7,16 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.IBinder;
 import android.provider.Settings.Secure;
 import android.util.Log;
+import android.widget.Toast;
 
 public class DaemonService extends Service {
 
@@ -38,17 +43,30 @@ public class DaemonService extends Service {
     private Object[] mStopForegroundArgs = new Object[1];
     
     public static MessageConsumer mConsumer = null;
+    private BluetoothAdapter mBluetoothAdapter = null;
     
     @Override
     public void onCreate() {
     	super.onCreate();
     	if(D) Log.e(TAG, "-- ON CREATE --");
-        
+                
     	pM = new PrefManager(getApplicationContext());
+    	if(!pM.isBond()){
+    		this.stopSelf();
+    	}
         String queue1 = pM.getUUID();
         String queue2 = pM.getBindID();
         if(queue1.isEmpty() || queue2.isEmpty()){
         	this.stopSelf();
+        }
+        
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        // If the adapter is null, then Bluetooth is not supported
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, "Bluetooth is not supported.", Toast.LENGTH_LONG).show();
+            this.stopSelf();
+        }else if (!mBluetoothAdapter.isEnabled()) {
+        	Toast.makeText(this, "Please enable your Bluetooth.", Toast.LENGTH_LONG).show();
         }
         
         //uuid = Secure.getString(this.getContentResolver(),Secure.ANDROID_ID);
@@ -166,6 +184,11 @@ public class DaemonService extends Service {
 		return mBinder;
 	}
 	
+	public static boolean isNetworkOn(Context context){
+		ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+		return (networkInfo != null && networkInfo.isConnected());
+	}
 	
 
 }

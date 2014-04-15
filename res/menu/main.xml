@@ -1,16 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item android:id="@+id/bind"
-          android:icon="@android:drawable/ic_menu_search"
+          android:icon="@drawable/ic_menu_bind"
           android:title="@string/bind" 
-          android:showAsAction="ifRoom|withText" />
-          
-    <item android:id="@+id/discoverable"
-          android:icon="@android:drawable/ic_menu_mylocation"
-          android:title="@string/discoverable"
           android:showAsAction="ifRoom|withText" />
 	<item
         android:id="@+id/unlock"
         android:icon="@android:drawable/ic_menu_help"
-        android:title="Unlock your PC"/>
+        android:title="@string/unlock"/>
+	
 </menu>

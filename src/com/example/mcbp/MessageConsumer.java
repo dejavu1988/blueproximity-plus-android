@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -90,42 +92,56 @@ public class MessageConsumer extends IConnectToRabbitMQ{
     };*/
     final Runnable mReturnMessage = new Runnable() {
         public void run() {
-        	String content = new String(mLastMessage);
+        	String content = StringUtils.stripEnd(new String(mLastMessage), null);
         	if(D) Log.e(TAG, "msg received: "+ content);
-        	msgObj = gson.fromJson(content, mapType);
-        	String id = msgObj.get("id");
-        	if(id.contains("RS")){
-        		String event = msgObj.get("event");
-        		String decision = msgObj.get("val");
-        		String ts = msgObj.get("ts");
-        		if(event.contains("Y") && decision.contains("T")){
-        			//event: unlock, decision: colocated
-        			if(D) Log.e(TAG, "event: unlock, decision: colocated");
-        			AskFeedback(true, true, ts);
-        		}else if(event.contains("Y") && decision.contains("F")){
-        			//event: unlock, decision: non-colocated
-        			if(D) Log.e(TAG, "event: unlock, decision: non-colocated");
-        			AskFeedback(true, false, ts);
-        		}else if(event.contains("N") && decision.contains("T")){
-        			//event: lock, decision: colocated
-        			if(D) Log.e(TAG, "event: lock, decision: colocated");
-        			AskFeedback(false, true, ts);
-        		}else if(event.contains("N") && decision.contains("F")){
-        			//event: lock, decision: non-colocated
-        			if(D) Log.e(TAG, "event: lock, decision: non-colocated");
-        			AskFeedback(false, false, ts);
+        	String[] received = StringUtils.split(content, "$");
+        	//if(D) Log.e(TAG, "msg received: "+ received.length);
+        	if(received.length >= 2){
+        		String msg = received[0];
+        		String msg_hmac = received[1];
+        		String tmp_hmac = getHmac(msg);
+        		if(msg_hmac.equalsIgnoreCase(tmp_hmac)){
+        			
+        			msgObj = gson.fromJson(msg, mapType);
+                	String id = msgObj.get("id");
+                	if(id.contains("RS")){
+                		String event = msgObj.get("event");
+                		String decision = msgObj.get("val");
+                		String ts = msgObj.get("ts");
+                		if(event.contains("Y") && decision.contains("T")){
+                			//event: unlock, decision: colocated
+                			if(D) Log.e(TAG, "event: unlock, decision: colocated");
+                			AskFeedback(true, true, ts);
+                		}else if(event.contains("Y") && decision.contains("F")){
+                			//event: unlock, decision: non-colocated
+                			if(D) Log.e(TAG, "event: unlock, decision: non-colocated");
+                			AskFeedback(true, false, ts);
+                		}else if(event.contains("N") && decision.contains("T")){
+                			//event: lock, decision: colocated
+                			if(D) Log.e(TAG, "event: lock, decision: colocated");
+                			AskFeedback(false, true, ts);
+                		}else if(event.contains("N") && decision.contains("F")){
+                			//event: lock, decision: non-colocated
+                			if(D) Log.e(TAG, "event: lock, decision: non-colocated");
+                			AskFeedback(false, false, ts);
+                		}
+                		
+                	}else if(id.contains("SCAN")){
+                		String ts = msgObj.get("ts");
+                		Purge();
+                		Scan(ts);
+                	}/*else if(id.contains("ID")){
+                		String uid = msgObj.get("uid");
+                		pM.updateBindID(uid);
+                		Purge();
+                		sendUuid();
+                	}*/
+                	
+        		}else{
+        			if(D) Log.e(TAG, "HMAC unmatches.");
         		}
-        		
-        	}else if(id.contains("SCAN")){
-        		String ts = msgObj.get("ts");
-        		Purge();
-        		Scan(ts);
-        	}/*else if(id.contains("ID")){
-        		String uid = msgObj.get("uid");
-        		pM.updateBindID(uid);
-        		Purge();
-        		sendUuid();
-        	}*/
+        	}
+        	
         }
     };
     
@@ -285,9 +301,10 @@ public class MessageConsumer extends IConnectToRabbitMQ{
     		@Override
             public void run(){
     			if(running){
+    				String signedMessage = StringUtils.stripEnd(message, null) + "$" + getHmac(message) + "$";
     				try {    				
-    					mModel.basicPublish("", mQueueSend, null, message.getBytes());
-    					if(D) Log.e(TAG, "msg sent: " + message);
+    					mModel.basicPublish("", mQueueSend, null, signedMessage.getBytes());
+    					if(D) Log.e(TAG, "msg sent: " + signedMessage);
     				} catch (IOException e) {
     					// TODO Auto-generated catch block
     					//e.printStackTrace();

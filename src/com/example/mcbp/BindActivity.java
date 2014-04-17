@@ -180,7 +180,7 @@ public class BindActivity extends Activity {
         case R.id.unlock:        	
         	//manually trigger lock in case of FalseNegative
         	if(bindstatus){
-            	DaemonService.mConsumer.sendFeedback("4","");        		
+            	DaemonService.mConsumer.sendFeedback("5","");        		
         	}
         	break;
         case R.id.bind:

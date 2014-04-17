@@ -5,6 +5,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.example.mcbp.bind.BluetoothUtil;
+import com.example.mcbp.crypt.CryptUtil;
 import com.example.mcbp.log.ConfigureLog4J;
 
 import android.app.ActionBar;
@@ -48,6 +49,7 @@ public class BindActivity extends Activity {
     private PrefManager pM;
     private boolean bindstatus; 
     //private Handler mHandler;
+    private String tmpUUID = "";
     
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -194,7 +196,7 @@ public class BindActivity extends Activity {
         			public void onClick(DialogInterface dialog, int which)
         			{
         				ensureDiscoverable();
-        	        	Toast.makeText(BindActivity.this, "set visible for 300s", Toast.LENGTH_SHORT).show();
+        	        	//Toast.makeText(BindActivity.this, "set visible for 300s", Toast.LENGTH_SHORT).show();
         	        	bind();
         			}
         		}).setNegativeButton("No", new DialogInterface.OnClickListener()
@@ -206,7 +208,7 @@ public class BindActivity extends Activity {
         		}).show();
         	}else{
         		ensureDiscoverable();
-	        	Toast.makeText(BindActivity.this, "set visible for 300s", Toast.LENGTH_SHORT).show();
+	        	//Toast.makeText(BindActivity.this, "set visible for 300s", Toast.LENGTH_SHORT).show();
 	        	bind();
         	}
         	break;
@@ -247,11 +249,30 @@ public class BindActivity extends Activity {
                 String readMessage = new String(readBuf, 0, msg.arg1);
                 if(readMessage.contains(":")){
                 	String[] tmps = readMessage.split(":");
-                	if(tmps[0].equalsIgnoreCase("ID")){
-                		Log.d(TAG, "UUID: " + tmps[1] + " len: " + tmps[1].length());
-                		pM.updateBindID(tmps[1]);
-                		mConnService.write(("ID:"+pM.getUUID()).getBytes());
+                	if(tmps.length >= 3 && tmps[0].equalsIgnoreCase("ID")){
+                		if(D) Log.d(TAG, "UUID: " + tmps[1] + " len: " + tmps[1].length());
+                		if(tmps[2].equalsIgnoreCase(CryptUtil.hmac(tmps[1], BluetoothUtil.ServiceID))){
+                			// T_UUID verified.
+                			tmpUUID = tmps[1];
+                			if(D) Log.d(TAG, "Send D_UUID");
+                			String localUUID = pM.getUUID();
+                			String localHmac = CryptUtil.hmac(localUUID, BluetoothUtil.ServiceID);
+                			mConnService.write(("ID:"+localUUID+":"+localHmac+":").getBytes());
+                		}else{
+                			// Requests resend T_UUID
+                			if(D) Log.d(TAG, "Request resend T_UUID");
+                			mConnService.write("ERR:".getBytes());
+                		}
+                	}else if(tmps[0].equalsIgnoreCase("ERR")){
+                		if(D) Log.d(TAG, "Resend D_UUID");
+            			String localUUID = pM.getUUID();
+            			String localHmac = CryptUtil.hmac(localUUID, BluetoothUtil.ServiceID);
+            			mConnService.write(("ID:"+localUUID+":"+localHmac+":").getBytes());
                 	}else if(tmps[0].equalsIgnoreCase("DONE")){
+                		if(D) Log.d(TAG, "Bind done.");
+                		mConnService.write("DONE:".getBytes());
+                		pM.updateBindID(tmpUUID);
+                		tmpUUID = "";
                 		bindstatus = true;
                     	mBindStatus.setText("Bound to " + pM.getBindName() +": "+ pM.getBindAddr());
                 		mConnService.stop();

@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.example.mcbp.connection.IConnectToRabbitMQ;
+import com.example.mcbp.crypt.CryptUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.rabbitmq.client.QueueingConsumer;
@@ -28,6 +29,7 @@ public class MessageConsumer extends IConnectToRabbitMQ{
     //The Queue name for this consumer
     private Context mContext;
     private String mQueueRecv, mQueueSend;
+    private String mIdRecv, mIdSend;
     private QueueingConsumer MySubscription;
     private HashMap<String,String> msgObj;
 	private Gson gson;
@@ -36,11 +38,13 @@ public class MessageConsumer extends IConnectToRabbitMQ{
     private PrefManager pM;
     private boolean running;
     
-    public MessageConsumer(Context context, String server, String queueRecv, String queueSend) {
+    public MessageConsumer(Context context, String server, String idRecv, String idSend) {
         super(server);
         mContext = context;
-        mQueueRecv = queueRecv;
-        mQueueSend = queueSend;
+        mIdRecv = idRecv;
+        mIdSend = idSend;
+        mQueueRecv = getHmac(mIdRecv);
+        mQueueSend = getHmac(mIdSend);
         gson = new Gson();
         mapType = new TypeToken<HashMap<String,String>>(){}.getType();
         //pM = new PrefManager(mContext);
@@ -394,6 +398,10 @@ public class MessageConsumer extends IConnectToRabbitMQ{
         };
         thread.start();
  
+    }
+    
+    private String getHmac(String msg){
+    	return CryptUtil.hmac(msg, mIdSend+mIdRecv);
     }
     
 }

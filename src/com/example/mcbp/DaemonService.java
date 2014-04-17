@@ -3,6 +3,9 @@ package com.example.mcbp;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.example.mcbp.bind.BluetoothUtil;
+import com.example.mcbp.crypt.CryptUtil;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;

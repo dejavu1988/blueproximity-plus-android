@@ -191,7 +191,9 @@ public class MessageConsumer extends IConnectToRabbitMQ{
         				mModel.queuePurge(mQueueSend);
     				} catch (IOException e) {
     					// TODO Auto-generated catch block
-    					e.printStackTrace();
+    					//e.printStackTrace();
+    					running = false;
+    					mHandler.post(mReconnectRunner);
     				}
     			}    			
     		}
@@ -284,7 +286,9 @@ public class MessageConsumer extends IConnectToRabbitMQ{
     					if(D) Log.e(TAG, "msg sent: " + message);
     				} catch (IOException e) {
     					// TODO Auto-generated catch block
-    					e.printStackTrace();
+    					//e.printStackTrace();
+    					running = false;
+    					mHandler.post(mReconnectRunner);
     				}
     			}    			
     		}

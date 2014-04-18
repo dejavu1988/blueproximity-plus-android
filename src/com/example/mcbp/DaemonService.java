@@ -156,7 +156,7 @@ public class DaemonService extends Service {
             CharSequence text = getText(R.string.foreground_service_started);
 
             // Set the icon, scrolling text and timestamp
-            Notification notification = new Notification(R.drawable.ic_launcher, text,
+            Notification notification = new Notification(R.drawable.ic_bp, text,
                     System.currentTimeMillis());
 
             // The PendingIntent to launch our activity if the user selects this notification

@@ -21,6 +21,7 @@ import android.util.Log;
 
 public class BluetoothWorker extends Service {
 
+	private final static int DEFAULT_LOCAL_RSSI = -40;
 	//private HashMap<String,Integer> btDevices;	
 	private BluetoothAdapter btAdapter;
 	private BroadcastReceiver btReceiver;
@@ -108,6 +109,8 @@ public class BluetoothWorker extends Service {
 		registerReceiver(btReceiver, btFilter);			
 		// Getting the Bluetooth adapter
     	btAdapter = BluetoothAdapter.getDefaultAdapter();
+    	// Insert local record
+    	WorkerService.sensorManager.putBluetoothEntry(btAdapter.getAddress(), DEFAULT_LOCAL_RSSI);
     	btAdapter.startDiscovery();
     	timer.start();
     	log.info("Subtask Bluetooth scan started ");

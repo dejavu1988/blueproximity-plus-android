@@ -70,6 +70,9 @@ public class DaemonService extends Service {
             this.stopSelf();
         }else if (!mBluetoothAdapter.isEnabled()) {
         	Toast.makeText(this, "Please enable your Bluetooth.", Toast.LENGTH_LONG).show();
+        }else if (mBluetoothAdapter.getScanMode() !=
+                BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE){
+        	Toast.makeText(this, "Please set your Bluetooth visible permanantly.", Toast.LENGTH_LONG).show();
         }
         
         //uuid = Secure.getString(this.getContentResolver(),Secure.ANDROID_ID);
@@ -192,6 +195,5 @@ public class DaemonService extends Service {
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		return (networkInfo != null && networkInfo.isConnected());
 	}
-	
 
 }

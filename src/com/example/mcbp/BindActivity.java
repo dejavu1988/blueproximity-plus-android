@@ -15,6 +15,7 @@ import android.app.AlertDialog.Builder;
 import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -43,13 +44,15 @@ public class BindActivity extends Activity {
     
     Logger log;
     
-    private TextView mBindStatus;
+    private TextView mBindStatus, mNetworkStatus;
     private BluetoothAdapter mBluetoothAdapter = null;
     private BluetoothUtil mConnService = null;
     private PrefManager pM;
-    private boolean bindstatus; 
+    private boolean bindstatus, networkstatus; 
     //private Handler mHandler;
+    private Thread networkThr;
     private String tmpUUID = "";
+    private static boolean activityOn = false;
     
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,6 +67,9 @@ public class BindActivity extends Activity {
         LogManager.getRootLogger().setLevel((Level)Level.DEBUG);
         
         mBindStatus = (TextView) findViewById(R.id.bindstatus);
+        mNetworkStatus = (TextView) findViewById(R.id.networkstatus);
+        
+        activityOn = true;
         
         pM = new PrefManager(getApplicationContext());
         if(pM.isBond()){
@@ -81,16 +87,67 @@ public class BindActivity extends Activity {
         	mBindStatus.setText("Not Bound");
         }
         
+        // Network monitor
+        /*if(DaemonService.IsReachable(this)){
+        	mNetworkStatus.setText("Connected");
+        	mNetworkStatus.setTextColor(Color.GREEN);
+        }else{
+        	mNetworkStatus.setText("Disconnected");
+        	mNetworkStatus.setTextColor(Color.RED);
+        }*/
+              
+        
+        
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         	
+    }
+	
+	Runnable nTask = new Runnable() {
+        public void run() {
+        	while(activityOn){
+        		final boolean netOn = DaemonService.IsReachable(BindActivity.this);
+        		Log.e(TAG, "IsReachable checked.");
+            	runOnUiThread(new Runnable(){
+            		@Override
+                    public void run(){
+            			if(netOn){
+                			mNetworkStatus.setText("Connected");
+                			mNetworkStatus.setTextColor(Color.GREEN);
+                		}else{
+                			mNetworkStatus.setText("Disconnected");
+                			mNetworkStatus.setTextColor(Color.RED);
+                		}
+            		}        		
+            	});
+            	try {
+					Thread.sleep(20000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					//Log.e(TAG, e.getMessage());
+				}
+        	}        	
+        }
+	};
+	
+	public synchronized void stopThread(){
+    	if(networkThr != null){
+    		Thread moribund = networkThr;
+    		networkThr = null;
+    		moribund.interrupt();
+    	}
     }
 	
 	@Override
     public void onStart() {
         super.onStart();
         if(D) Log.e(TAG, "++ ON START ++");
-
+        activityOn = true;
+        mNetworkStatus.setText("...");
+		mNetworkStatus.setTextColor(Color.BLACK);
+		stopThread();
+        networkThr = new Thread(null, nTask, "nUpdate");
+        networkThr.start();
         // If BT is not on, request that it be enabled.
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -103,7 +160,16 @@ public class BindActivity extends Activity {
 	
 	@Override
 	public synchronized void onResume(){
+		if(D) Log.e(TAG, "++ ON RESUME ++");
 		super.onResume();		
+	}
+	
+	@Override
+	public synchronized void onStop(){
+		if(D) Log.e(TAG, "++ ON STOP ++");
+		activityOn = false;
+		stopThread();
+		super.onStop();		
 	}
 	
 	private void bind(){

@@ -64,12 +64,12 @@ public abstract class IConnectToRabbitMQ{
        * Connect to the broker and create the exchange
        * @return success
        */
-      public boolean connectToRabbitMQ()
+      public boolean iConnectToRabbitMQ()
       {
     	  mStatus = false;
           if(mModel!= null && mModel.isOpen() )//already declared
               return true;
-          Thread thread = new Thread(){
+          /*Thread thread = new Thread(){
         	  @Override
               public void run(){
         		  try
@@ -95,7 +95,22 @@ public abstract class IConnectToRabbitMQ{
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
+          try
+          {
+              ConnectionFactory connectionFactory = new ConnectionFactory();
+              connectionFactory.setHost(mServer); 
+              mConnection = connectionFactory.newConnection();  
+              mModel = mConnection.createChannel();
+              mStatus = true;
+          }
+          catch (Exception e)
+          {
+              //e.printStackTrace();
+              // Typical error: NetworkOnMainThreadException
+              if(D) Log.e(TAG, "super channel error: "+e);   
+              mStatus = false;
+          }
           return mStatus;
           
       }

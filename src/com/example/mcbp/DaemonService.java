@@ -1,7 +1,12 @@
 package com.example.mcbp;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
 
 import com.example.mcbp.bind.BluetoothUtil;
 import com.example.mcbp.crypt.CryptUtil;
@@ -148,8 +153,9 @@ public class DaemonService extends Service {
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
         //new Thread(new Daemon(this)).start(); 
-        boolean t = mConsumer.connectToRabbitMQ();
-        if(D) Log.e(TAG, "connection "+t);
+        /*boolean t = mConsumer.connectToRabbitMQ();*/
+        mConsumer.connectToRabbitMQ();
+        if(D) Log.e(TAG, "try connection");
         return START_NOT_STICKY;
     }
     
@@ -190,10 +196,44 @@ public class DaemonService extends Service {
 		return mBinder;
 	}
 	
-	public static boolean isNetworkOn(Context context){
-		ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+	public static boolean IsNetworkOn(Context context){
+		final ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		final NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		return (networkInfo != null && networkInfo.isConnected());
+	}
+	
+	public static synchronized boolean IsReachable(Context context) {
+	    boolean isReachable = false;
+
+	    if (IsNetworkOn(context)) {
+	        // Some sort of connection is open, check if server is reachable
+	    	try {
+				isReachable = InetAddress.getByName("54.229.32.28").isReachable(3000);
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				Log.e(TAG, e.getMessage());
+				isReachable = false;
+				return isReachable;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				Log.e(TAG, e.getMessage());
+				isReachable = false;
+				return isReachable;
+			}
+	        /*try {
+	            URL url = new URL("http://www.google.com");
+	            HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+	            urlc.setRequestProperty("User-Agent", "Android Application");
+	            urlc.setRequestProperty("Connection", "close");
+	            urlc.setConnectTimeout(5 * 1000);
+	            urlc.connect();
+	            isReachable = (urlc.getResponseCode() == 200);
+	        } catch (IOException e) {
+	            Log.e(TAG, e.getMessage());
+	        }*/
+	    }
+
+	    return isReachable;
 	}
 
 }

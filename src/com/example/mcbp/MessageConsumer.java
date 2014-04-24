@@ -167,36 +167,46 @@ public class MessageConsumer extends IConnectToRabbitMQ{
     /**
      * Create Exchange and then start consuming. A binding needs to be added before any messages will be delivered
      */
-    @Override
-    public boolean connectToRabbitMQ()
+    //@Override
+    public void connectToRabbitMQ()
     {
-       if(super.connectToRabbitMQ())
-       {
-    	   if(D) Log.e(TAG, "super connection successful");
-           try {
-               //mQueue = mModel.queueDeclare().getQueue();
-        	   mModel.queueDeclare(mQueueRecv, false, false, false, null);
-        	   mModel.queueDeclare(mQueueSend, false, false, false, null);
-        	   mModel.queuePurge(mQueueRecv);
-        	   mModel.queuePurge(mQueueSend);
-        	   if(D) Log.e(TAG, "connection: queue declared and purged");
-               MySubscription = new QueueingConsumer(mModel);
-               mModel.basicConsume(mQueueRecv, true, MySubscription);
-            } catch (IOException e) {
-                //e.printStackTrace();
-            	mHandler.post(mReconnectRunner);
-                return false;
-            }
-             
-            Running = true;
-            //mConsumeHandler.post(mConsumeRunner);
-            mHandler.post(mConsumeRunner);
- 
-           return true;
-       }
-       if(D) Log.e(TAG, "super connection failed");  
-       mHandler.post(mWaitForNetworkOnRunner);
-       return false;
+    	Thread thread = new Thread(){
+    		@Override
+            public void run(){
+    			if(MessageConsumer.super.iConnectToRabbitMQ())
+    		       {
+    		    	   if(D) Log.e(TAG, "super connection successful");
+    		           try {
+    		               //mQueue = mModel.queueDeclare().getQueue();
+    		        	   mModel.queueDeclare(mQueueRecv, false, false, false, null);
+    		        	   mModel.queueDeclare(mQueueSend, false, false, false, null);
+    		        	   mModel.queuePurge(mQueueRecv);
+    		        	   mModel.queuePurge(mQueueSend);
+    		        	   if(D) Log.e(TAG, "connection: queue declared and purged");
+    		               MySubscription = new QueueingConsumer(mModel);
+    		               mModel.basicConsume(mQueueRecv, true, MySubscription);
+    		            } catch (IOException e) {
+    		                //e.printStackTrace();
+    		            	mHandler.post(mReconnectRunner);
+    		                //return false;
+    		            }
+    		             
+    		            Running = true;
+    		            //mConsumeHandler.post(mConsumeRunner);
+    		            mHandler.post(mConsumeRunner);
+    		 
+    		           //return true;
+    		       }else{
+    		    	   if(D) Log.e(TAG, "super connection failed");  
+        		       mHandler.post(mWaitForNetworkOnRunner);
+        		       //return false;
+    		       }
+    				
+    		}
+    	};
+    	thread.start();
+       
+       
     }
  
     /*
@@ -369,7 +379,7 @@ public class MessageConsumer extends IConnectToRabbitMQ{
 			@Override
 			public void run(){
 				try {
-					Thread.sleep(15000-t);
+					Thread.sleep(20000-t);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -399,13 +409,13 @@ public class MessageConsumer extends IConnectToRabbitMQ{
             	 if(D) Log.e(TAG, "check network");
             	 boolean flag = true;
             	 while(flag){
-            		 if(DaemonService.isNetworkOn(mContext)){
+            		 if(DaemonService.IsReachable(mContext)){
             			 flag = false;
             			 //mConnectExceptionHandler.post(mReconnectRunner);
             			 mHandler.post(mReconnectRunner);
             		 }
             		 try {
-						Thread.sleep(60000);
+						Thread.sleep(40000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

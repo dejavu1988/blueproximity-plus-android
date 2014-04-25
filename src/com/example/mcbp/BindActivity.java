@@ -53,6 +53,8 @@ public class BindActivity extends Activity {
     private Thread networkThr;
     private String tmpUUID = "";
     private static boolean activityOn = false;
+    private static boolean isConnected = false;
+    private static boolean onLaunch = true;	//For the 1st time after network monitor thread launched
     
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -108,18 +110,24 @@ public class BindActivity extends Activity {
         	while(activityOn){
         		final boolean netOn = DaemonService.IsReachable(BindActivity.this);
         		Log.e(TAG, "IsReachable checked.");
-            	runOnUiThread(new Runnable(){
-            		@Override
-                    public void run(){
-            			if(netOn){
-                			mNetworkStatus.setText("Connected");
-                			mNetworkStatus.setTextColor(Color.GREEN);
-                		}else{
-                			mNetworkStatus.setText("Disconnected");
-                			mNetworkStatus.setTextColor(Color.RED);
-                		}
-            		}        		
-            	});
+        		synchronized(this){
+        			if(onLaunch || (netOn != isConnected) ){
+            			isConnected = netOn;
+            			onLaunch = false;
+            			runOnUiThread(new Runnable(){
+                    		@Override
+                            public void run(){
+                    			if(netOn){
+                        			mNetworkStatus.setText("Connected");
+                        			mNetworkStatus.setTextColor(Color.GREEN);
+                        		}else{
+                        			mNetworkStatus.setText("Disconnected");
+                        			mNetworkStatus.setTextColor(Color.RED);
+                        		}
+                    		}        		
+                    	});
+            		}      	
+        		}        			
             	try {
 					Thread.sleep(20000);
 				} catch (InterruptedException e) {
@@ -143,8 +151,13 @@ public class BindActivity extends Activity {
         super.onStart();
         if(D) Log.e(TAG, "++ ON START ++");
         activityOn = true;
-        mNetworkStatus.setText("...");
-		mNetworkStatus.setTextColor(Color.BLACK);
+        if(isConnected){
+        	mNetworkStatus.setText("Connected");
+    		mNetworkStatus.setTextColor(Color.BLACK);
+        }else{
+        	mNetworkStatus.setText("Disconnected");
+    		mNetworkStatus.setTextColor(Color.BLACK);
+        }        
 		stopThread();
         networkThr = new Thread(null, nTask, "nUpdate");
         networkThr.start();
@@ -168,6 +181,7 @@ public class BindActivity extends Activity {
 	public synchronized void onStop(){
 		if(D) Log.e(TAG, "++ ON STOP ++");
 		activityOn = false;
+		onLaunch = true;
 		stopThread();
 		super.onStop();		
 	}

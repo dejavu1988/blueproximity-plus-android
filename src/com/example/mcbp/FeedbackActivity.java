@@ -31,7 +31,7 @@ import android.widget.TextView;
 
 public class FeedbackActivity extends Activity {
 
-	private Button btn00, btn01, btn10, btn11;
+	private Button btn00, btn01; //, btn10, btn11;
 	private TextView tv;
 	Logger log;
 	//private PrefManager pM;
@@ -54,13 +54,13 @@ public class FeedbackActivity extends Activity {
         
         btn00 = (Button) findViewById(R.id.yesevent1);
 		btn01 = (Button) findViewById(R.id.noevent1);
-		btn10 = (Button) findViewById(R.id.yesevent2);
-		btn11 = (Button) findViewById(R.id.noevent2);
+		//btn10 = (Button) findViewById(R.id.yesevent2);
+		//btn11 = (Button) findViewById(R.id.noevent2);
 		tv = (TextView) findViewById(R.id.event);
-		btn00.setBackgroundColor(Color.GREEN);
-		btn01.setBackgroundColor(Color.RED);
-		btn10.setBackgroundColor(Color.RED);
-		btn11.setBackgroundColor(Color.GREEN);
+		//btn00.setBackgroundColor(Color.GREEN);
+		//btn01.setBackgroundColor(Color.RED);
+		//btn10.setBackgroundColor(Color.RED);
+		//btn11.setBackgroundColor(Color.GREEN);
 		
         PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
         wakeLock = pm.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
@@ -88,12 +88,20 @@ public class FeedbackActivity extends Activity {
 		
 		if(event){
 			tv.setText("unlocked");
-			btn10.setVisibility(View.INVISIBLE);
-			btn11.setVisibility(View.INVISIBLE);
+			btn00.setText("Yes");
+			btn01.setText("No, Lock my PC");
+			btn00.setBackgroundColor(Color.GREEN);
+			btn01.setBackgroundColor(Color.RED);
+			//btn10.setVisibility(View.INVISIBLE);
+			//btn11.setVisibility(View.INVISIBLE);
 		}else{
 			tv.setText("locked");
-			btn00.setVisibility(View.INVISIBLE);
-			btn01.setVisibility(View.INVISIBLE);
+			btn00.setText("Yes, Unlock my PC");
+			btn01.setText("No");
+			btn00.setBackgroundColor(Color.RED);
+			btn01.setBackgroundColor(Color.GREEN);
+			//btn00.setVisibility(View.INVISIBLE);
+			//btn01.setVisibility(View.INVISIBLE);
 		}
 		
 		//pM = new PrefManager(getApplicationContext());
@@ -105,7 +113,14 @@ public class FeedbackActivity extends Activity {
 				// TODO Auto-generated method stub
 				log.info("TP button clicked");	
 				cancelNotification();
-				DaemonService.mConsumer.sendFeedback("1", ts);
+				if(event){
+					// TP
+					DaemonService.mConsumer.sendFeedback("1", ts);
+				}else{
+					// FN
+					DaemonService.mConsumer.sendFeedback("4", ts);
+				}
+				
 				FeedbackActivity.this.finish();
 			}
 			
@@ -118,13 +133,20 @@ public class FeedbackActivity extends Activity {
 				// TODO Auto-generated method stub
 				log.info("FP button clicked");
 				cancelNotification();
-				DaemonService.mConsumer.sendFeedback("2", ts);
+				if(event){
+					// FP
+					DaemonService.mConsumer.sendFeedback("2", ts);
+				}else{
+					// TN
+					DaemonService.mConsumer.sendFeedback("3", ts);
+				}
+				
 				FeedbackActivity.this.finish();
 			}
 			
 		});
 		
-		btn10.setOnClickListener(new Button.OnClickListener(){
+		/*btn10.setOnClickListener(new Button.OnClickListener(){
 
 			@Override
 			public void onClick(View v) {
@@ -148,7 +170,7 @@ public class FeedbackActivity extends Activity {
 				FeedbackActivity.this.finish();
 			}
 			
-		});
+		});*/
 		
 		timer = new CountDownTimer(10000, 1000) {
 

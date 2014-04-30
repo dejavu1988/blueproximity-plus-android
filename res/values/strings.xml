@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Blueproximity++</string>
+    <string name="app_name">BlueProximity++</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="foreground_service_started">Service is in the foreground</string>
-    <string name="foreground_service_label">Blueproximity++ Daemon</string>
+    <string name="foreground_service_label">BlueProximity++ Daemon</string>
     
     <!--  BluetoothClient -->
     <string name="not_connected">You are not connected to a device</string>

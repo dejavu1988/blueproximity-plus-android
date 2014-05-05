@@ -237,6 +237,57 @@ public class FeedbackActivity extends Activity {
     }
 	
 	@Override
+	public void onNewIntent(Intent intent){
+		super.onNewIntent(intent);
+		
+        Bundle extras = intent.getExtras();        
+		if(extras != null){
+			if(extras.containsKey("event")){
+				event = extras.getBoolean("event");
+			}
+        	if(extras.containsKey("decision")){
+        		decision = extras.getBoolean("decision");
+        	}
+        	if(extras.containsKey("ts")){
+        		ts = extras.getString("ts");
+        	}
+        	if(extras.containsKey("cancel")){
+        		cancel = extras.getBoolean("cancel");
+        	}
+        }
+		
+		if(event){
+			tv.setText("unlocked");
+			btn00.setText("Yes");
+			btn01.setText("No, Lock my PC");
+			btn00.setBackgroundColor(Color.GREEN);
+			btn01.setBackgroundColor(Color.RED);
+			//btn10.setVisibility(View.INVISIBLE);
+			//btn11.setVisibility(View.INVISIBLE);
+		}else{
+			tv.setText("locked");
+			btn00.setText("Yes, Unlock my PC");
+			btn01.setText("No");
+			btn00.setBackgroundColor(Color.RED);
+			btn01.setBackgroundColor(Color.GREEN);
+			//btn00.setVisibility(View.INVISIBLE);
+			//btn01.setVisibility(View.INVISIBLE);
+		}
+		
+		if(!cancel){
+	    	Vibrator vib = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+		    vib.vibrate(1000);
+	    	showNotification();
+		    try {
+				DaemonService.mConsumer.notificationTimeout(0);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    }
+	}
+	
+	@Override
 	public void onResume(){
 		super.onResume();
 		

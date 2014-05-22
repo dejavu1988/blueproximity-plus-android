@@ -5,10 +5,10 @@ public final class Constants {
 	
 	// Sensor Status: null sensor, gps, wifi, bluetooth, audio...
 	public static final int STATUS_SENSOR_NULL = 0;
-	public static final int STATUS_SENSOR_GPS = 1;
+	public static final int STATUS_SENSOR_GPS = 8;
 	public static final int STATUS_SENSOR_WIFI = 2;
 	public static final int STATUS_SENSOR_BT = 4;
-	public static final int STATUS_SENSOR_AUDIO = 8;
+	public static final int STATUS_SENSOR_AUDIO = 1;
 	public static final int STATUS_SENSOR_GPSCOORD = 16;
 	public static final int STATUS_SENSOR_GWBA = 15;
 	

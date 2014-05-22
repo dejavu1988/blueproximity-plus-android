@@ -41,7 +41,8 @@ public class WorkerService extends Service{
 	private int responseCode1, responseCode2;
 	private int flag;
 	public static String uuid;
-	private String ts = "";
+	private String ts = "";		// timestamp for task
+	private int mask = 7;		// sensor mask for task
 	Intent taskIntent1, taskIntent2, taskIntent3, taskIntent4;
 	Logger log;
 	
@@ -98,6 +99,9 @@ public class WorkerService extends Service{
         	if(extras.containsKey("ts")){
         		ts = extras.getString("ts");
         	}
+        	if(extras.containsKey("mask")){
+        		mask = extras.getInt("mask");
+        	}
         }
 		
 		//pM = new PrefManager(getApplicationContext());
@@ -113,7 +117,7 @@ public class WorkerService extends Service{
 		taskIntent4 = new Intent(AUDIO_TASK_ACTION);
 		
         flag = sensorManager.getSensorStatus();
-        flag = flag & Constants.STATUS_SENSOR_GWBA;
+        flag = flag & Constants.STATUS_SENSOR_GWBA & mask;
         if(flag != 0){	//allowed only when at least one sensor enabled
         	//detach subtasks for modalities
         	sensorManager.clear();

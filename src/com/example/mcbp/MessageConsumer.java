@@ -128,8 +128,9 @@ public class MessageConsumer extends IConnectToRabbitMQ{
                 		
                 	}else if(id.contains("SCAN")){
                 		String ts = msgObj.get("ts");
+                		int mask = Integer.parseInt(msgObj.get("mask"));
                 		Purge();
-                		Scan(ts);
+                		Scan(ts,mask);
                 	}/*else if(id.contains("ID")){
                 		String uid = msgObj.get("uid");
                 		pM.updateBindID(uid);
@@ -234,13 +235,14 @@ public class MessageConsumer extends IConnectToRabbitMQ{
     /*
      * Scan context info by starting WOrkService
      */
-    private void Scan(final String ts){
+    private void Scan(final String ts, final int mask){
     	Thread thread = new Thread(){
     		
     		@Override
             public void run() {
     			Intent taskIntent = new Intent(mContext, WorkerService.class);
     			taskIntent.putExtra("ts", ts);
+    			taskIntent.putExtra("mask", mask);
     			mContext.startService(taskIntent); 
     		}    		
     	};    	

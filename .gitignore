@@ -5,9 +5,11 @@
 */.project
 */.classpath
 */project.properties
-
+*/local.properties
+*/proguard/
 
 *~
 *.dex
 *.class
 *.ap_
+*.apk

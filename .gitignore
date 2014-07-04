@@ -1,5 +1,11 @@
 */bin/
 */gen/
+*/.settings/
+
+*/.project
+*/.classpath
+*/project.properties
+
 
 *~
 *.dex

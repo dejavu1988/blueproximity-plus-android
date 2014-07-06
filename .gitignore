@@ -1,12 +1,5 @@
 */bin/
 */gen/
-*/.settings/
-
-*/.project
-*/.classpath
-*/project.properties
-*/local.properties
-*/proguard/
 
 *~
 *.dex
